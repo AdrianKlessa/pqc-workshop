@@ -27,6 +27,8 @@ class Polynomial:
         last_nonzero_index = np.max(np.nonzero(result_coefficients))
         result_coefficients = result_coefficients[:last_nonzero_index + 1]
         # TODO: Reduce mod_number and mod_polynomial
+
+
         return Polynomial(result_coefficients)
 
     def add_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
@@ -86,6 +88,9 @@ class Polynomial:
         return self.coefficients.shape[0] - 1
 
     def __repr__(self):
+
+        if all(v == 0 for v in self.coefficients):
+            return "0"
 
         repr_string = ""
         for i in reversed(range(self.degree + 1)):
