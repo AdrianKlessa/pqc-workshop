@@ -64,7 +64,7 @@ class Polynomial:
         temp_coeffs *= -1
         return self.add_mod(Polynomial(temp_coeffs), mod_number)
 
-    def divide_by(self, other_polynomial: Polynomial, mod_number: int | None) -> (Polynomial, Polynomial):
+    def divide_by(self, other_polynomial: Polynomial, mod_number: int | None) -> tuple[Polynomial, Polynomial]:
         # this / other
         # --> quotient, remainder
         """
@@ -94,9 +94,50 @@ class Polynomial:
             #raise Exception
         return q, r
 
+    def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
+
+        # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Simple_algebraic_field_extensions
+        t = Polynomial([0])
+        t_prime = Polynomial([1])
+        r = mod_polynomial
+        r_prime = self
+        while not r_prime.is_zero:
+            print(f"r: {r}")
+            print(f"r_prime: {r_prime}")
+            q, _ = r.divide_by(r_prime, mod_number)
+            print(f"q: {q}")
+            left = r_prime
+            right = r.substract_mod(q.multiply_mod(r_prime, mod_number, None), mod_number)
+            print(f"right1: {right}")
+            print(f"left1: {left}")
+            r = left
+            r_prime = right
+            left = t_prime
+            right = t.substract_mod(q.multiply_mod(t_prime, mod_number, None), mod_number)
+            print(f"right2: {right}")
+            print(f"left2: {left}")
+            t = left
+            t_prime = right
+            print(r_prime)
+        if r.degree > 0:
+            print(f"r degree: {r.degree}")
+            print(f"r: {r}")
+            raise ValueError("The given polynomial is not invertible")
+        return r.divide_by(Polynomial([1]), mod_number)[0].multiply_mod(t, mod_number,None)
+
     @property
     def degree(self):
+        if self.is_zero:
+            return -1
         return self.coefficients.shape[0] - 1
+
+    @property
+    def is_zero(self):
+        if len(self.coefficients) < 1:
+            return True
+        if all(v == 0 for v in self.coefficients):
+            return True
+        return False
 
     def __repr__(self):
 
@@ -128,5 +169,7 @@ class Polynomial:
 
         return repr_string
 
+    def __eq__(self,other):
+        return self.coefficients == other.coefficients
     def __str__(self):
         return repr(self)
