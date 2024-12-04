@@ -146,26 +146,26 @@ class Polynomial:
 
         repr_string = ""
         for i in reversed(range(self.degree + 1)):
-            coeff = self.coefficients[i]
+            coefficient_i = self.coefficients[i]
 
             # I hate this
-            if coeff == 0:
+            if coefficient_i == 0:
                 continue
             if i == self.degree and i > 1:
-                repr_string += f"{coeff}x^{i}"
+                repr_string += f"{coefficient_i}x^{i}"
             elif i == self.degree and i == 1:
-                repr_string += f"{coeff}x"
+                repr_string += f"{coefficient_i}x"
             elif i == self.degree and i == 0:
-                repr_string += f"{coeff}"
+                repr_string += f"{coefficient_i}"
             else:
-                if coeff > 0:
+                if coefficient_i > 0:
                     repr_string += "+"
                 if i == 0:
-                    repr_string += f"{coeff}"
+                    repr_string += f"{coefficient_i}"
                 elif i == 1:
-                    repr_string += f"{coeff}x"
+                    repr_string += f"{coefficient_i}x"
                 else:
-                    repr_string += f"{coeff}x^{i}"
+                    repr_string += f"{coefficient_i}x^{i}"
 
         return repr_string
 
