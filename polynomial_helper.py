@@ -26,14 +26,20 @@ class Polynomial:
             return Polynomial([0])
         last_nonzero_index = np.max(np.nonzero(result_coefficients))
         result_coefficients = result_coefficients[:last_nonzero_index + 1]
-        # TODO: Reduce mod_number and mod_polynomial
 
+        if mod_number:
+            for i in range(len(result_coefficients)):
+                result_coefficients[i] %= mod_number
+        if mod_polynomial:
+            temp_polynomial = Polynomial(result_coefficients)
+            q, r = temp_polynomial.divide_by(mod_polynomial, mod_number)
+            return r
 
         return Polynomial(result_coefficients)
 
     def add_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
         # this + other
-        # TODO: Reduce mod number
+
         if self.degree > other_polynomial.degree:
             coeffs = np.copy(self.coefficients)
             for i in range(other_polynomial.degree + 1):
@@ -47,6 +53,10 @@ class Polynomial:
             return Polynomial([0])
         last_nonzero_index = np.max(np.nonzero(coeffs))
         coeffs = coeffs[:last_nonzero_index + 1]
+
+        if mod_number:
+            for i in range(len(coeffs)):
+                coeffs[i] %= mod_number
         return Polynomial(coeffs)
 
     def substract_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
@@ -56,6 +66,7 @@ class Polynomial:
 
     def divide_by(self, other_polynomial: Polynomial, mod_number: int | None) -> (Polynomial, Polynomial):
         # this / other
+        # --> quotient, remainder
         """
         to_divide = self
         while to_divide.degree>=other_polynomial.degree:
@@ -106,8 +117,8 @@ class Polynomial:
             elif i == self.degree and i == 0:
                 repr_string += f"{coeff}"
             else:
-                if coeff>0:
-                    repr_string +="+"
+                if coeff > 0:
+                    repr_string += "+"
                 if i == 0:
                     repr_string += f"{coeff}"
                 elif i == 1:
