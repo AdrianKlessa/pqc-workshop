@@ -192,6 +192,16 @@ class TestPolynomials(unittest.TestCase):
         self.assertEqual(a1, f_p)
         self.assertEqual(a2, f_q)
 
+    def test_inverse_ntru_3(self):
+        N=11
+        f = Polynomial([-1, 0, 1, -1,0,0,0,0,1,0,1])
+        q = 73
+
+        N_polynomial = Polynomial([-1,0,0,0,0,0,0,0,0,0,0,1])
+        f_q = f.get_inverse(N_polynomial, q)
+        print(f)
+        print(N_polynomial)
+        self.assertEqual(f_q, Polynomial([28,-32,12,-30,-33,36,-10,33,15,33,22]))
 
     def test_noninvertible_polynomial(self):
         a = Polynomial([0, 1])
