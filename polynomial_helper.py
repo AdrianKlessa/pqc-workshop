@@ -16,7 +16,8 @@ class Polynomial:
     def multiply_mod(self, other_polynomial: Polynomial, mod_number: int | None,
                      mod_polynomial: Polynomial | None) -> Polynomial:
         # +2 since the degree is w/o the constant term
-        result_coefficients = [0 for _ in range(self.degree + other_polynomial.degree + 2)]
+        result_coefficients = [0 for _ in
+                               range(self.coefficients.shape[0] + other_polynomial.coefficients.shape[0] + 2)]
 
         for i in range(other_polynomial.coefficients.shape[0]):
             for j in range(self.coefficients.shape[0]):
@@ -63,6 +64,12 @@ class Polynomial:
         temp_coeffs = np.copy(other_polynomial.coefficients)
         temp_coeffs *= -1
         return self.add_mod(Polynomial(temp_coeffs), mod_number)
+
+    def reduced_modulo_scalar(self, scalar: int) -> Polynomial:
+        coeffs = np.copy(self.coefficients).tolist()
+        for i in range(len(coeffs)):
+            coeffs[i] %= scalar
+        return Polynomial(coeffs)
 
     def divide_by(self, other_polynomial: Polynomial, mod_number: int | None) -> tuple[Polynomial, Polynomial]:
         # this / other
@@ -169,7 +176,31 @@ class Polynomial:
 
         return repr_string
 
-    def __eq__(self,other):
-        return self.coefficients == other.coefficients
+    def __eq__(self, other):
+        return np.array_equal(self.coefficients, other.coefficients)
+
     def __str__(self):
         return repr(self)
+
+
+def extendedGCD(a, b):
+    r, r1 = a, b
+    s, s1 = 1, 0
+    t, t1 = 0, 1
+    while r1 != 0:
+        q, r2 = r // r1, r % r1
+        r, s, t, r1, s1, t1 = r1, s1, t1, r2, s - s1 * q, t - t1 * q
+    d = r
+    return d, s, t
+
+
+def multiplicative_inverse(a, m):
+    d, inv, _ = extendedGCD(a, m)
+    if d == 1:
+        if m == 1:
+            return 1  #for compatibility
+        return inv % m
+    else:
+        raise ValueError('Numbers ' + str(a) + ' and ' + str(m) + ' are not coprime.')
+
+#print(multiplicative_inverse(3,7))
