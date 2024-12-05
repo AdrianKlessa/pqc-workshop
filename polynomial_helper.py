@@ -6,6 +6,7 @@ import numpy as np
 
 
 class Polynomial:
+
     def __init__(self, coefficients: Sequence[int]):
         """
 
@@ -35,9 +36,6 @@ class Polynomial:
         else:
             result_coefficients = np.array([0], dtype=int)
 
-        if mod_number:
-            for i in range(len(result_coefficients)):
-                result_coefficients[i] %= mod_number
         if mod_polynomial:
             temp_polynomial = Polynomial(result_coefficients)
             q, r = temp_polynomial.divide_by(mod_polynomial, mod_number)
@@ -86,20 +84,26 @@ class Polynomial:
         while to_divide.degree>=other_polynomial.degree:
             to_divide
         """
+        this = self.reduced_modulo_scalar(mod_number) if mod_number else self
+        other = other_polynomial.reduced_modulo_scalar(mod_number) if mod_number else other_polynomial
         # https://en.wikipedia.org/wiki/Polynomial_greatest_common_divisor#Euclidean_division
         q = Polynomial([0])
-        r = self
-        d = other_polynomial.degree
-        c = other_polynomial.coefficients[-1]
+        r = this
+        d = other.degree
+        c = other.coefficients[-1]
 
         deg_var = r.degree
         while deg_var >= d:
-            s_left = r.coefficients[-1] / c
+            if mod_number:
+                c_inverse = multiplicative_inverse(c, mod_number)
+                s_left = (r.coefficients[-1] * c_inverse) % mod_number
+            else:
+                s_left = r.coefficients[-1] / c
             s_degree = r.degree - d
             s_coefficients = [0] * s_degree + [s_left]
             s = Polynomial(s_coefficients)
             q = q.add_mod(s, mod_number)
-            r = r.substract_mod(s.multiply_mod(other_polynomial, mod_number, None), mod_number)
+            r = r.substract_mod(s.multiply_mod(other, mod_number, None), mod_number)
             deg_var = r.degree
             #print(f"s: {s}")
             #print(f"q: {q}")
@@ -109,6 +113,11 @@ class Polynomial:
         return q, r
 
     def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
+
+        this = self.reduced_modulo_scalar(mod_number) if mod_number else self
+        _, this = this.divide_by(mod_polynomial, mod_number)
+        other = mod_polynomial.reduced_modulo_scalar(mod_number) if mod_number else mod_polynomial
+
 
         # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Simple_algebraic_field_extensions
         t = Polynomial([0])
@@ -197,7 +206,7 @@ def extendedGCD(a, b):
     return d, s, t
 
 
-def multiplicative_inverse(a, m):
+def multiplicative_inverse(a: int, m: int) -> int:
     d, inv, _ = extendedGCD(a, m)
     if d == 1:
         if m == 1:
