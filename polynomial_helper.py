@@ -25,7 +25,9 @@ class Polynomial:
 
         for i in range(other_polynomial.coefficients.shape[0]):
             for j in range(self.coefficients.shape[0]):
-                result_coefficients[i + j] += self.coefficients[j] * other_polynomial.coefficients[i]
+                result_coefficients[i + j] += (self.coefficients[j] * other_polynomial.coefficients[i])
+                if mod_number:
+                    result_coefficients[i + j] %= mod_number
 
         if np.any(result_coefficients):
             last_nonzero_index = np.max(np.nonzero(result_coefficients))
