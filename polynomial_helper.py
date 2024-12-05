@@ -11,7 +11,11 @@ class Polynomial:
 
         :param coefficients: Coefficients, starting from the lowest degree (a0, a1, a2, ...)
         """
-        self.coefficients = np.array(coefficients)
+        if not np.any(coefficients):
+            self.coefficients = np.array([0], dtype=int)
+        else:
+            self.coefficients = np.array(coefficients, dtype=int)
+        self.coefficients = np.trim_zeros(self.coefficients, 'b')
 
     def multiply_mod(self, other_polynomial: Polynomial, mod_number: int | None,
                      mod_polynomial: Polynomial | None) -> Polynomial:
@@ -23,10 +27,11 @@ class Polynomial:
             for j in range(self.coefficients.shape[0]):
                 result_coefficients[i + j] += self.coefficients[j] * other_polynomial.coefficients[i]
 
-        if all(v == 0 for v in result_coefficients):
-            return Polynomial([0])
-        last_nonzero_index = np.max(np.nonzero(result_coefficients))
-        result_coefficients = result_coefficients[:last_nonzero_index + 1]
+        if np.any(result_coefficients):
+            last_nonzero_index = np.max(np.nonzero(result_coefficients))
+            result_coefficients = result_coefficients[:last_nonzero_index + 1]
+        else:
+            result_coefficients = np.array([0], dtype=int)
 
         if mod_number:
             for i in range(len(result_coefficients)):
@@ -40,7 +45,6 @@ class Polynomial:
 
     def add_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
         # this + other
-
         if self.degree > other_polynomial.degree:
             coeffs = np.copy(self.coefficients)
             for i in range(other_polynomial.degree + 1):
@@ -50,10 +54,11 @@ class Polynomial:
             for i in range(self.degree + 1):
                 coeffs[i] = coeffs[i] + self.coefficients[i]
 
-        if all(v == 0 for v in coeffs):
-            return Polynomial([0])
-        last_nonzero_index = np.max(np.nonzero(coeffs))
-        coeffs = coeffs[:last_nonzero_index + 1]
+        if np.any(coeffs):
+            last_nonzero_index = np.max(np.nonzero(coeffs))
+            coeffs = coeffs[:last_nonzero_index + 1]
+        else:
+            coeffs = np.array([0], dtype=int)
 
         if mod_number:
             for i in range(len(coeffs)):
@@ -140,11 +145,7 @@ class Polynomial:
 
     @property
     def is_zero(self):
-        if len(self.coefficients) < 1:
-            return True
-        if all(v == 0 for v in self.coefficients):
-            return True
-        return False
+        return len(self.coefficients) == 0 or np.all(self.coefficients == 0)
 
     def __repr__(self):
 
