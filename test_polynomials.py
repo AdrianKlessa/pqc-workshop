@@ -72,6 +72,24 @@ class TestPolynomials(unittest.TestCase):
         a1 = p1.multiply_mod(p2, 17, None)
         self.assertEqual(a1, Polynomial([9, 9, 6, 2, 14, 3, 0, 10]))
 
+    def test_add_zero(self):
+        p1 = Polynomial([0, 0, 1])
+        p2 = Polynomial([0])
+        a1 = p1.add_mod(p2, None)
+        self.assertEqual(a1, p1)
+
+    def test_subtract_zero(self):
+        p1 = Polynomial([0, 0, 1])
+        p2 = Polynomial([0])
+        a1 = p1.substract_mod(p2, None)
+        self.assertEqual(a1, p1)
+
+    def test_multiply_zero(self):
+        p1 = Polynomial([0, 0, 1])
+        p2 = Polynomial([0])
+        a1 = p1.multiply_mod(p2, None, None)
+        self.assertEqual(a1, p2)
+
     def test_mul_modulo_polynomial(self):
         a = Polynomial([1, 1, 1])  # 1+x+x^2
         b = Polynomial([0, 1, 0, 1])  # x+x^3
