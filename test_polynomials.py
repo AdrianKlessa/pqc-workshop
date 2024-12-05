@@ -121,7 +121,7 @@ class TestPolynomials(unittest.TestCase):
         p1 = Polynomial([7, 10, 5, 2])
         p2 = Polynomial([4, 0, 1])
         r = Polynomial([4, 2])
-        q = Polynomial([4, 0, 1])
+        q = Polynomial([5, 2])
         a1, a2 = p1.divide_by(p2, 17)
 
         self.assertEqual(a1, q)
