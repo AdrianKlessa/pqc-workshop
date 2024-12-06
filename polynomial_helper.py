@@ -76,7 +76,7 @@ class Polynomial:
             coeffs[i] %= scalar
         return Polynomial(coeffs)
 
-    def divide_by(self, other_polynomial: Polynomial, mod_number: int | None) -> tuple[Polynomial, Polynomial]:
+    def divide_by(self, other_polynomial: Polynomial, mod_number: int | None = None) -> tuple[Polynomial, Polynomial]:
         # this / other
         # --> quotient, remainder
         """
