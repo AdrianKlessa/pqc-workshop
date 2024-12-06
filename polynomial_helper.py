@@ -84,6 +84,10 @@ class Polynomial:
         while to_divide.degree>=other_polynomial.degree:
             to_divide
         """
+
+        if other_polynomial.is_zero:
+            raise ValueError("Cannot divide by zero")
+
         this = self.reduced_modulo_scalar(mod_number) if mod_number else self
         other = other_polynomial.reduced_modulo_scalar(mod_number) if mod_number else other_polynomial
         # https://en.wikipedia.org/wiki/Polynomial_greatest_common_divisor#Euclidean_division
