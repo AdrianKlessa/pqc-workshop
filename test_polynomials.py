@@ -144,6 +144,11 @@ class TestPolynomials(unittest.TestCase):
         a1, _ = p3.divide_by(p4, 3)
         self.assertEqual(a1, Polynomial([2, 1, 1]))
 
+        p5 = Polynomial([-1,0,-1,1])
+        p6 = Polynomial([-5,1])
+        a1, _ = p5.divide_by(p6, 11)
+        self.assertEqual(a1, Polynomial([9,4,1]))
+
     def test_div_modulo_remainder(self):
         p1 = Polynomial([7, 10, 5, 2])
         p2 = Polynomial([4, 0, 1])
@@ -228,7 +233,7 @@ class TestPolynomials(unittest.TestCase):
         f_q = f.get_inverse(N_polynomial, q)
         print(f)
         print(N_polynomial)
-        self.assertEqual(f_q, Polynomial([28,-32,12,-30,-33,36,-10,33,15,33,22]))
+        self.assertEqual(f_q, Polynomial([28,-32,12,-30,-33,36,-10,33,15,33,22]).reduced_modulo_scalar(q))
 
     def test_noninvertible_polynomial(self):
         a = Polynomial([0, 1])
