@@ -14,11 +14,38 @@ class TestPolynomials(unittest.TestCase):
         p2 = Polynomial([1, 0, 0, 0])
         self.assertNotEqual(p1, p2)
 
-    def test_coefficient_cutoff(self):
+    def test_coefficient_cutoff_1(self):
         p1 = Polynomial([1, 1, 0])
         p2 = Polynomial([1, 1])
 
         self.assertEqual(p1, p2)
+
+    def test_coefficient_cutoff_2(self):
+        p1 = Polynomial([0,0,0])
+        p2 = Polynomial([0])
+
+        self.assertEqual(p1, p2)
+        self.assertEqual(len(p1.coefficients),1)
+
+    def test_addition_zero(self):
+        p1 = Polynomial([0, 1])
+        p2 = Polynomial([0])
+
+        a1 = p1.add_mod(p2, 3)
+        self.assertEqual(a1, p1)
+
+    def test_multiplication_one(self):
+        p1 = Polynomial([1, 2, 3, 4])
+        p2 = Polynomial([1])
+
+        a1 = p1.multiply_mod(p2, 7, None)
+        self.assertEqual(a1, p1)
+
+    def test_division_zero(self):
+        p1 = Polynomial([1, 2, 3, 4])
+        p2 = Polynomial([0])
+        method_to_test = p1.divide_by
+        self.assertRaises(ValueError, method_to_test, p2, None)
 
     def test_add(self):
         p1 = Polynomial([0, 0, 1])
