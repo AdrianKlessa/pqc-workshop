@@ -16,10 +16,10 @@ class Polynomial:
             self.coefficients = np.array([0], dtype=int)
         else:
             self.coefficients = np.array(coefficients, dtype=int)
-        self.coefficients = np.trim_zeros(self.coefficients, 'b')
+            self.coefficients = np.trim_zeros(self.coefficients, 'b')
 
-    def multiply_mod(self, other_polynomial: Polynomial, mod_number: int | None,
-                     mod_polynomial: Polynomial | None) -> Polynomial:
+    def multiply_mod(self, other_polynomial: Polynomial, mod_number: int | None = None,
+                     mod_polynomial: Polynomial | None = None) -> Polynomial:
         # +2 since the degree is w/o the constant term
         result_coefficients = [0 for _ in
                                range(self.coefficients.shape[0] + other_polynomial.coefficients.shape[0] + 2)]
@@ -43,7 +43,7 @@ class Polynomial:
 
         return Polynomial(result_coefficients)
 
-    def add_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
+    def add_mod(self, other_polynomial: Polynomial, mod_number: int | None = None) -> Polynomial:
         # this + other
         if self.degree > other_polynomial.degree:
             coeffs = np.copy(self.coefficients)
@@ -65,7 +65,7 @@ class Polynomial:
                 coeffs[i] %= mod_number
         return Polynomial(coeffs)
 
-    def substract_mod(self, other_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
+    def substract_mod(self, other_polynomial: Polynomial, mod_number: int | None = None) -> Polynomial:
         temp_coeffs = np.copy(other_polynomial.coefficients)
         temp_coeffs *= -1
         return self.add_mod(Polynomial(temp_coeffs), mod_number)
@@ -105,11 +105,9 @@ class Polynomial:
             q = q.add_mod(s, mod_number)
             r = r.substract_mod(s.multiply_mod(other, mod_number, None), mod_number)
             deg_var = r.degree
-            #print(f"s: {s}")
-            #print(f"q: {q}")
-            #print(f"r: {r}")
-            #print(deg_var)
-            #raise Exception
+        if mod_number:
+            q = q.reduced_modulo_scalar(mod_number)
+            r = r.reduced_modulo_scalar(mod_number)
         return q, r
 
     def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
