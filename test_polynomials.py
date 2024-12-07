@@ -149,6 +149,13 @@ class TestPolynomials(unittest.TestCase):
         a1, _ = p5.divide_by(p6, 11)
         self.assertEqual(a1, Polynomial([9,4,1]))
 
+    def test_division_self(self):
+        p1 = Polynomial([9, 9, 6, 2, 14, 3, 0, 10])
+        p2 = Polynomial([9, 9, 6, 2, 14, 3, 0, 10])
+        a1, _ = p1.divide_by(p2, 17)
+        self.assertEqual(a1, Polynomial([1]))
+
+
     def test_div_modulo_remainder(self):
         p1 = Polynomial([7, 10, 5, 2])
         p2 = Polynomial([4, 0, 1])
