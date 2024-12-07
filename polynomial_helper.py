@@ -84,31 +84,39 @@ class Polynomial:
         while to_divide.degree>=other_polynomial.degree:
             to_divide
         """
-
-        if other_polynomial.is_zero:
-            raise ValueError("Cannot divide by zero")
-
+        print(f"Input: {self}, {other_polynomial}", {mod_number})
         this = self.reduced_modulo_scalar(mod_number) if mod_number else self
         other = other_polynomial.reduced_modulo_scalar(mod_number) if mod_number else other_polynomial
+        if other.is_zero:
+            raise ValueError("Cannot divide by zero")
+        if this==other:
+            return Polynomial([1]), Polynomial([0])
         # https://en.wikipedia.org/wiki/Polynomial_greatest_common_divisor#Euclidean_division
         q = Polynomial([0])
         r = this
         d = other.degree
         c = other.coefficients[-1]
-
-        deg_var = r.degree
-        while deg_var >= d:
-            if mod_number:
-                c_inverse = multiplicative_inverse(c, mod_number)
-                s_left = (r.coefficients[-1] * c_inverse) % mod_number
-            else:
-                s_left = r.coefficients[-1] / c
-            s_degree = r.degree - d
-            s_coefficients = [0] * s_degree + [s_left]
-            s = Polynomial(s_coefficients)
-            q = q.add_mod(s, mod_number)
-            r = r.substract_mod(s.multiply_mod(other, mod_number, None), mod_number)
+        if self.degree > other_polynomial.degree:
             deg_var = r.degree
+            while deg_var >= d and not r.is_zero:
+                print(q)
+                if mod_number:
+                    c_inverse = multiplicative_inverse(c, mod_number)
+                    print(f"c_inverse: {c_inverse}")
+                    s_left = (r.coefficients[-1] * c_inverse) % mod_number
+                    print(s_left)
+                else:
+                    s_left = r.coefficients[-1] / c
+                s_degree = r.degree - d
+                s_coefficients = [0] * s_degree + [s_left]
+                s = Polynomial(s_coefficients)
+                print(f"s: {s}")
+                q = q.add_mod(s, mod_number)
+                r = r.substract_mod(s.multiply_mod(other, mod_number, None), mod_number)
+                deg_var = r.degree
+        else:
+            q = Polynomial([0])
+            r = self
         if mod_number:
             q = q.reduced_modulo_scalar(mod_number)
             r = r.reduced_modulo_scalar(mod_number)
@@ -116,39 +124,53 @@ class Polynomial:
 
     def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
 
-        this = self.reduced_modulo_scalar(mod_number) if mod_number else self
-        _, this = this.divide_by(mod_polynomial, mod_number)
-        other = mod_polynomial.reduced_modulo_scalar(mod_number) if mod_number else mod_polynomial
-
-
+        #this = self.reduced_modulo_scalar(mod_number) if mod_number else self
+        #_, this = this.divide_by(mod_polynomial, mod_number)
+        #other = mod_polynomial.reduced_modulo_scalar(mod_number) if mod_number else mod_polynomial
+        this = self
+        other = mod_polynomial
         # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Simple_algebraic_field_extensions
         t = Polynomial([0])
         t_prime = Polynomial([1])
-        r = mod_polynomial
-        r_prime = self
+        r = other
+        r_prime = this
         while not r_prime.is_zero:
             print(f"r: {r}")
             print(f"r_prime: {r_prime}")
             q, _ = r.divide_by(r_prime, mod_number)
             print(f"q: {q}")
             left = r_prime
-            right = r.substract_mod(q.multiply_mod(r_prime, mod_number, None), mod_number)
+            right = r.substract_mod(q.multiply_mod(r_prime), mod_number)
             print(f"right1: {right}")
             print(f"left1: {left}")
             r = left
             r_prime = right
             left = t_prime
-            right = t.substract_mod(q.multiply_mod(t_prime, mod_number, None), mod_number)
+            right = t.substract_mod(q.multiply_mod(t_prime), mod_number)
             print(f"right2: {right}")
             print(f"left2: {left}")
             t = left
             t_prime = right
             print(r_prime)
+        print(f"r before reduction:")
+        print(r)
+        _, r = r.divide_by(mod_polynomial, mod_number)
+        print(f"r after reduction:")
+        print(r)
         if r.degree > 0:
             print(f"r degree: {r.degree}")
             print(f"r: {r}")
             raise ValueError("The given polynomial is not invertible")
-        return r.divide_by(Polynomial([1]), mod_number)[0].multiply_mod(t, mod_number,None)
+        print("FINAL OUTPUT:")
+        print(f"r_prime: {r_prime}")
+        print(f"r: {r}")
+        print(f"t: {t}")
+        print(f"t_prime: {t_prime}")
+        #return multiplicative_inverse(1,mod_number)
+        ##return Polynomial([1]).divide_by(r)[0].multiply_mod(t,mod_number,mod_polynomial)#t#Polynomial([1]).divide_by(r, mod_number)[0].multiply_mod(t, mod_number, None)
+        temp_x= multiplicative_inverse(r.coefficients[0], mod_number)
+        return Polynomial([temp_x]).multiply_mod(t, mod_number)
+        #return r.divide_by(Polynomial([1]))[0].multiply_mod(t,mod_number,mod_polynomial)
 
     @property
     def degree(self):
