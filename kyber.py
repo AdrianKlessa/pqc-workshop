@@ -52,7 +52,7 @@ class KyberSystem():
         for i in range(self.k):
             e_polynomials.append(Polynomial(self.generate_polynomial(self.n, self.q, self.eta_1)))
         e = np.array(e_polynomials, ndmin=2).T
-        print(f"e: {e}")
+        #print(f"e: {e}")
         t = np.dot(A, s) + e
         self.reduce_array_modulo(t)
         return (A, t), s
@@ -72,13 +72,13 @@ class KyberSystem():
         e2 = Polynomial(self.generate_polynomial(self.n, self.q, self.eta_2))
 
         m_polynomial = self.encode_message_to_polynomial(m)
-        print(f"m_polynomial: {m_polynomial}")
+        #print(f"m_polynomial: {m_polynomial}")
         u = np.dot(A.T, r) + e1
         self.reduce_array_modulo(u)
-        print(f"u: {u}")
+        #print(f"u: {u}")
         v = np.dot(t.T, r) + e2 + m_polynomial
         self.reduce_array_modulo(v)
-        print(f"v: {v}")
+        #print(f"v: {v}")
         return u, v
 
     def decrypt(self, s, u, v):
@@ -86,13 +86,13 @@ class KyberSystem():
         message_noisy = message_noisy[0][0]
         message_noisy = self.reduce_element_modulo(message_noisy)
         message_noisy = message_noisy.coefficients.tolist()
-        print("noisy:")
-        print(f"q/2: {self.get_nearest_integer_to_half(self.q)}")
-        print(message_noisy)
+        #print("noisy:")
+        #print(f"q/2: {self.get_nearest_integer_to_half(self.q)}")
+        #print(message_noisy)
         denoised = self.denoise(message_noisy)
         denoised_string = "".join([str(i) for i in denoised])
-        print(denoised_string)
-        converted_to_decimal = int(denoised_string.rstrip("0"), 2)
+        #print(denoised_string)
+        converted_to_decimal = int(denoised_string.rstrip("0")[::-1], 2)
         return converted_to_decimal
 
     def denoise(self, coefficient_list):
@@ -119,7 +119,7 @@ class KyberSystem():
     def encode_message_to_polynomial(self, m):
         m_binary_string = self.decimalToBinary(m)
         q_half = self.get_nearest_integer_to_half(self.q)
-        coeffs = [int(i) * q_half for i in m_binary_string]
+        coeffs = list(reversed([int(i) * q_half for i in m_binary_string]))
         poly = Polynomial(coeffs)
         return poly
 
@@ -145,8 +145,8 @@ class KyberSystem():
 
         # Generate 2 * eta * n random bits (0 or 1)
         random_bits = np.random.randint(0, 2, size=(2 * eta, n))
-        print("HERE")
-        print(random_bits.shape)
+        #print("HERE")
+        #print(random_bits.shape)
         # Split into two halves: a and b
         a = random_bits[:eta, :]  # First eta rows
         b = random_bits[eta:, :]  # Last eta rows
@@ -195,17 +195,26 @@ if __name__ == "__main__":
     ks = KyberSystem(256, 2, 3329, 2, 2)
     #ks = KyberSystem(5,2,17,1,1)
     (A, t), s = ks.generate_key_pair()
-    print(A)
-    print(t)
-    print(s)
-    print(ks.get_nearest_integer_to_half(3329))
+    #print(A)
+    #print(t)
+    #print(s)
+    #print(ks.get_nearest_integer_to_half(3329))
 
     u, v = ks.encrypt(A, t, 915)
-    print(ks.encrypt(A, t, 5))
+    #print(ks.encrypt(A, t, 5))
 
     decrypted = ks.decrypt(s, u, v)
+
+    to_encrypt = 7
+    print(f"to encrypt: {to_encrypt}")
+    ks = KyberSystem(256, 2, 3329, 2, 2)
+    (A, t), s = ks.generate_key_pair()
+    u, v = ks.encrypt(A, t, to_encrypt)
+    print(f"encrypted: {u}, {v}")
+    decrypted = ks.decrypt(s, u, v)
+    print(f"decrypted: {decrypted}")
     #results.append(decrypted)
-    print(decrypted)
+    #print(decrypted)
     """
     results = []
     for i in range(200):
