@@ -52,6 +52,7 @@ class TestPolynomials(unittest.TestCase):
         p2 = Polynomial([1, 0, 0, 0])
         a1 = p1.add_mod(p2, None)
         self.assertEqual(a1, Polynomial([1, 0, 1, 0]))
+        self.assertEqual(p1+p2, Polynomial([1, 0, 1, 0]))
 
         p3 = Polynomial([0, 0, 1])
         p4 = Polynomial([0, 0, 4])
@@ -74,6 +75,7 @@ class TestPolynomials(unittest.TestCase):
         p2 = Polynomial([1, 0, 0, 1])
         a1 = p1.substract_mod(p2, None)
         self.assertEqual(a1, Polynomial([-1, 0, 1, -1]))
+        self.assertEqual(p1-p2, Polynomial([-1, 0, 1, -1]))
 
     def test_sub_modulo(self):
         p1 = Polynomial([0, 0, 1])
@@ -92,6 +94,7 @@ class TestPolynomials(unittest.TestCase):
         p2 = Polynomial([1, -5, 3])
         a1 = p1.multiply_mod(p2, None, None)
         self.assertEqual(a1, Polynomial([0, 0, 2, -10, 6]))
+        self.assertEqual(p1*p2, Polynomial([0, 0, 2, -10, 6]))
 
     def test_mul_modulo(self):
         p1 = Polynomial([2, 3, 0, 0, 10])

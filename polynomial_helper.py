@@ -194,6 +194,16 @@ class Polynomial:
     def __str__(self):
         return repr(self)
 
+    def __add__(self, other):
+        return self.add_mod(other)
+
+    def __sub__(self, other):
+        return self.substract_mod(other)
+
+    def __mul__(self, other):
+        return self.multiply_mod(other)
+
+
 
 def extendedGCD(a, b):
     r, r1 = a, b
