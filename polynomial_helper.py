@@ -16,10 +16,18 @@ class Polynomial:
             self.coefficients = np.array([0], dtype=int)
         else:
             self.coefficients = np.array(coefficients, dtype=int)
+            # Trim zero coefficients to avoid equality, other issues
             self.coefficients = np.trim_zeros(self.coefficients, 'b')
 
     def multiply_mod(self, other_polynomial: Polynomial, mod_number: int | None = None,
                      mod_polynomial: Polynomial | None = None) -> Polynomial:
+        """
+        Multiply this by other polynomial. Optionally reduce modulo.
+        :param other_polynomial: Polynomial to multiply by
+        :param mod_number: Modulus for coefficients
+        :param mod_polynomial: Modulus polynomial for reduction
+        :return: this*other_polynomial
+        """
         # +2 since the degree is w/o the constant term
         result_coefficients = [0 for _ in
                                range(self.coefficients.shape[0] + other_polynomial.coefficients.shape[0] + 2)]
@@ -44,6 +52,12 @@ class Polynomial:
         return Polynomial(result_coefficients)
 
     def add_mod(self, other_polynomial: Polynomial, mod_number: int | None = None) -> Polynomial:
+        """
+        Add another polynomial to this polynomial. Optionally reduce modulo.
+        :param other_polynomial: Polynomial to add to
+        :param mod_number: Modulus for coefficients
+        :return: this+other_polynomial
+        """
         # this + other
         if self.degree > other_polynomial.degree:
             coeffs = np.copy(self.coefficients)
@@ -66,29 +80,39 @@ class Polynomial:
         return Polynomial(coeffs)
 
     def substract_mod(self, other_polynomial: Polynomial, mod_number: int | None = None) -> Polynomial:
+        """
+        Subtract another polynomial from this polynomial. Optionally reduce modulo.
+        :param other_polynomial: Polynomial to subtract from this polynomial
+        :param mod_number: Modulus for coefficients
+        :return: this-other_polynomial
+        """
         temp_coeffs = np.copy(other_polynomial.coefficients)
         temp_coeffs *= -1
         return self.add_mod(Polynomial(temp_coeffs), mod_number)
 
     def reduced_modulo_scalar(self, scalar: int) -> Polynomial:
+        """
+        Reduce this polynomial's coefficients modulo scalar
+        :param scalar: Modulus for coefficients
+        :return: Polynomial with reduced coefficients
+        """
         coeffs = np.copy(self.coefficients).tolist()
         for i in range(len(coeffs)):
             coeffs[i] %= scalar
         return Polynomial(coeffs)
 
     def divide_by(self, other_polynomial: Polynomial, mod_number: int | None = None) -> tuple[Polynomial, Polynomial]:
-        # this / other
-        # --> quotient, remainder
         """
-        to_divide = self
-        while to_divide.degree>=other_polynomial.degree:
-            to_divide
+        Divide this polynomial by another polynomial. Optionally reduce modulo.
+        :param other_polynomial: Polynomial to divide by
+        :param mod_number: Modulus for coefficients
+        :return: Tuple of (quotient, remainder)
         """
         this = self.reduced_modulo_scalar(mod_number) if mod_number else self
         other = other_polynomial.reduced_modulo_scalar(mod_number) if mod_number else other_polynomial
         if other.is_zero:
             raise ValueError("Cannot divide by zero")
-        if this==other:
+        if this == other:
             return Polynomial([1]), Polynomial([0])
         # https://en.wikipedia.org/wiki/Polynomial_greatest_common_divisor#Euclidean_division
         q = Polynomial([0])
@@ -119,9 +143,12 @@ class Polynomial:
 
     def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
 
-        #this = self.reduced_modulo_scalar(mod_number) if mod_number else self
-        #_, this = this.divide_by(mod_polynomial, mod_number)
-        #other = mod_polynomial.reduced_modulo_scalar(mod_number) if mod_number else mod_polynomial
+        """
+        Get the multiplicative inverse of this polynomial in a ring modulo mod_polynomial
+        :param mod_polynomial: Modulus polynomial
+        :param mod_number: Modulus for coefficients
+        :return: Multiplicative inverse of this polynomial
+        """
         this = self
         other = mod_polynomial
         # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Simple_algebraic_field_extensions
@@ -142,11 +169,8 @@ class Polynomial:
         _, r = r.divide_by(mod_polynomial, mod_number)
         if r.degree > 0:
             raise ValueError("The given polynomial is not invertible")
-        #return multiplicative_inverse(1,mod_number)
-        ##return Polynomial([1]).divide_by(r)[0].multiply_mod(t,mod_number,mod_polynomial)#t#Polynomial([1]).divide_by(r, mod_number)[0].multiply_mod(t, mod_number, None)
-        temp_x= multiplicative_inverse(r.coefficients[0], mod_number)
+        temp_x = multiplicative_inverse(r.coefficients[0], mod_number)
         return Polynomial([temp_x]).multiply_mod(t, mod_number)
-        #return r.divide_by(Polynomial([1]))[0].multiply_mod(t,mod_number,mod_polynomial)
 
     @property
     def degree(self):
@@ -194,6 +218,8 @@ class Polynomial:
     def __str__(self):
         return repr(self)
 
+    # Algebraic operation overloads for plug & play Numpy matrix operations
+
     def __add__(self, other):
         return self.add_mod(other)
 
@@ -202,7 +228,6 @@ class Polynomial:
 
     def __mul__(self, other):
         return self.multiply_mod(other)
-
 
 
 def extendedGCD(a, b):
