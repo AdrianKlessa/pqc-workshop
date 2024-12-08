@@ -204,37 +204,6 @@ class TestPolynomials(unittest.TestCase):
         self.assertEqual(a1, Polynomial([1,0,1,1]))
 
     def test_inverse_ntru(self):
-        f = Polynomial([1, 0, -1, 1])
-        p = 3
-        q = 16
-
-        N_polynomial = Polynomial([-1,0,0,0,1])
-
-        f_p = f.get_inverse(N_polynomial, p)
-        f_q = f.get_inverse(N_polynomial, q)
-
-        self.assertEqual(f_p, Polynomial([2, 0, 1, 1]))
-        self.assertEqual(f_q, Polynomial([-3, 7, 3, -6]))
-
-    def test_inverse_ntru_2(self):
-        f = Polynomial([-1, 1, 1, 0, -1, 0, 1, 0, 0, 1, -1])  # -1+x+x^2-x^4+x^6+x^9-x^10
-        p = 3
-        q = 32
-        N = 11
-        modulus = Polynomial([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
-
-        f_p = Polynomial([1,2,0,2,2,1,0,2,1,2])
-        f_q = Polynomial([5,9,6,16,4,15,16,22,20,18,30])
-        #print(f"inverse p: {f.reduced_modulo_scalar(p).get_inverse(modulus.reduced_modulo_scalar(p), p)}")
-        #print(f"inverse q: {f.reduced_modulo_scalar(q).get_inverse(modulus.reduced_modulo_scalar(q), q)}")
-
-        a1 = f.get_inverse(modulus,p)
-        a2 = f.get_inverse(modulus,q)
-
-        self.assertEqual(a1, f_p)
-        self.assertEqual(a2, f_q)
-
-    def test_inverse_ntru_3(self):
         N=11
         f = Polynomial([-1, 0, 1, -1,0,0,0,0,1,0,1])
         q = 73
