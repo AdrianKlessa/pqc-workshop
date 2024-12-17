@@ -119,7 +119,7 @@ class Polynomial:
         r = this
         d = other.degree
         c = other.coefficients[-1]
-        if self.degree > other_polynomial.degree:
+        if self.degree >= other_polynomial.degree:
             deg_var = r.degree
             while deg_var >= d and not r.is_zero:
                 if mod_number:
