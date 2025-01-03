@@ -10,7 +10,7 @@ def ntru_division(a: Polynomial, b: Polynomial, modulus: int) -> Tuple[
     r = a
     q = Polynomial([0])
     u = multiplicative_inverse(int(b.coefficients[-1]), modulus)
-    N = b.degree #+ 1
+    N = b.degree
     while r.degree >= N:
         d = r.degree
         x_coefficients = np.zeros(d+1)
@@ -21,7 +21,6 @@ def ntru_division(a: Polynomial, b: Polynomial, modulus: int) -> Tuple[
         r = r.reduced_modulo_scalar(modulus)
         q = q.add_mod(v)
         q = q.reduced_modulo_scalar(modulus)
-        #print(r)
     return q, r
 
 

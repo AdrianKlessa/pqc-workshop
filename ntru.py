@@ -53,7 +53,6 @@ class NTRU:
         self.q = q
         self.d = d
         self.N_polynomial = polynomial_helper.Polynomial([-1] + [0] * (N - 1) + [1])
-        print(self.N_polynomial)
 
     def generate_keys(self):
         while True:
@@ -63,35 +62,20 @@ class NTRU:
             f = get_ternary_polynomial(self.d, self.d-1, self.N - 1)
             if f.evaluated_at_1 == 0:
                 continue
-            f = Polynomial([-1, 1, 1, 0, -1, 0, 1, 0, 0, 1, -1]) # TODO: Remove hard-coded value
-            print(f"f: {f}")
-            print(f"N polynomial: {self.N_polynomial}")
-            print(f"q: {self.q}")
-            print(f"p: {self.p}")
             fp = get_inverse(f, self.p, self.N_polynomial)
             fq = get_inverse(f, self.q, self.N_polynomial)
-            print(f"fp: {fp}, fq: {fq}")
             if fp and fq:
                 break
-        # TODO: Remove hard-coded value
-        #g = get_ternary_polynomial(self.d, self.d, self.N - 1)
-        g = Polynomial([-1,0,1,1,0,1,0,0,-1,0,-1])
-        print(f"g: {g}")
+        g = get_ternary_polynomial(self.d, self.d, self.N - 1)
         h = Polynomial([self.p]).multiply_mod(fq, self.q, self.N_polynomial)
         h = h.multiply_mod(g, self.q, self.N_polynomial)
         h = center_polynomial(h, self.q)
-        print(f"h: {h}")
         return (h, (f, fp))
 
     def encrypt(self, public_key: Polynomial, message: Polynomial) -> Polynomial:
         # TODO: Verify that the message is in the correct range (centered)
-        # TODO: Remove hard-coded value
-        #r = get_ternary_polynomial(self.d, self.d, self.N - 1)
-        r = Polynomial([-1,0,1,1,1,-1,0,-1])
-        print(f"r: {r}")
-        print(f"public_key: {public_key}")
+        r = get_ternary_polynomial(self.d, self.d, self.N - 1)
         c = r.multiply_mod(public_key, self.q, self.N_polynomial)
-        #c = c.multiply_mod(Polynomial([self.p]), self.q, self.N_polynomial)
         c = c.add_mod(message, self.q)
         return c
 
