@@ -47,7 +47,7 @@ def center_polynomial(polynomial: Polynomial, q: int):
     return Polynomial(center_coefficients(coeffs, q))
 
 class NTRU:
-    def __init__(self, N: int, p: int, q: int, d: int):
+    def __init__(self, N: int = 251, p: int = 3, q: int = 128, d: int = 3):
         self.N = N
         self.p = p
         self.q = q
@@ -101,23 +101,3 @@ class NTRU:
         m = private_key[1].multiply_mod(a, self.p, self.N_polynomial)
         m = center_polynomial(m, self.p)
         return m
-
-# TODO: Force a specific f polynomial and use the one from wikipedia for testing as it's small
-#ntru_system = NTRU(509, 3, 2048, 3)
-ntru_system = NTRU(11, 3, 32, 3)
-public_key, private_key = ntru_system.generate_keys()
-
-message = Polynomial([-1, 0, 0, 1, -1, 0, 0, 0, -1, 1, 1])
-print(f"message: {message}")
-
-ciphertext = ntru_system.encrypt(public_key, message)
-
-print(f"ciphertext: {ciphertext}")
-
-decrypted_message = ntru_system.decrypt(ciphertext, private_key)
-
-print(f"decrypted_message: {decrypted_message}")
-
-#assert decrypted_message.reduced_modulo_scalar(3) == message.reduced_modulo_scalar(3)
-
-assert decrypted_message == message
