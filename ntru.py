@@ -42,6 +42,9 @@ def center_coefficients(coefficients, q):
             centered.append(c)
     return centered
 
+def center_polynomial(polynomial: Polynomial, q: int):
+    coeffs = polynomial.coefficients
+    return Polynomial(center_coefficients(coeffs, q))
 
 class NTRU:
     def __init__(self, N: int, p: int, q: int, d: int):
@@ -60,7 +63,7 @@ class NTRU:
             f = get_ternary_polynomial(self.d, self.d-1, self.N - 1)
             if f.evaluated_at_1 == 0:
                 continue
-            #f = Polynomial([-1, 1, 1, 0, -1, 0, 1, 0, 0, 1, -1])
+            f = Polynomial([-1, 1, 1, 0, -1, 0, 1, 0, 0, 1, -1]) # TODO: Remove hard-coded value
             print(f"f: {f}")
             print(f"N polynomial: {self.N_polynomial}")
             print(f"q: {self.q}")
@@ -70,26 +73,38 @@ class NTRU:
             print(f"fp: {fp}, fq: {fq}")
             if fp and fq:
                 break
-        g = get_ternary_polynomial(self.d, self.d, self.N - 1)
+        # TODO: Remove hard-coded value
+        #g = get_ternary_polynomial(self.d, self.d, self.N - 1)
+        g = Polynomial([-1,0,1,1,0,1,0,0,-1,0,-1])
+        print(f"g: {g}")
         h = Polynomial([self.p]).multiply_mod(fq, self.q, self.N_polynomial)
         h = h.multiply_mod(g, self.q, self.N_polynomial)
+        h = center_polynomial(h, self.q)
+        print(f"h: {h}")
         return (h, (f, fp))
 
     def encrypt(self, public_key: Polynomial, message: Polynomial) -> Polynomial:
-        r = get_ternary_polynomial(self.d, self.d, self.N - 1)
+        # TODO: Verify that the message is in the correct range (centered)
+        # TODO: Remove hard-coded value
+        #r = get_ternary_polynomial(self.d, self.d, self.N - 1)
+        r = Polynomial([-1,0,1,1,1,-1,0,-1])
+        print(f"r: {r}")
+        print(f"public_key: {public_key}")
         c = r.multiply_mod(public_key, self.q, self.N_polynomial)
-        c = c.multiply_mod(Polynomial([self.p]), self.q, self.N_polynomial)
+        #c = c.multiply_mod(Polynomial([self.p]), self.q, self.N_polynomial)
         c = c.add_mod(message, self.q)
         return c
 
     def decrypt(self, ciphertext: Polynomial, private_key: Tuple[Polynomial, Polynomial]) -> Polynomial:
         a = ciphertext.multiply_mod(private_key[0], self.q, self.N_polynomial)
+        a = center_polynomial(a, self.q)
         m = private_key[1].multiply_mod(a, self.p, self.N_polynomial)
+        m = center_polynomial(m, self.p)
         return m
 
-
-ntru_system = NTRU(509, 3, 2048, 3)
-
+# TODO: Force a specific f polynomial and use the one from wikipedia for testing as it's small
+#ntru_system = NTRU(509, 3, 2048, 3)
+ntru_system = NTRU(11, 3, 32, 3)
 public_key, private_key = ntru_system.generate_keys()
 
 message = Polynomial([-1, 0, 0, 1, -1, 0, 0, 0, -1, 1, 1])
@@ -102,3 +117,7 @@ print(f"ciphertext: {ciphertext}")
 decrypted_message = ntru_system.decrypt(ciphertext, private_key)
 
 print(f"decrypted_message: {decrypted_message}")
+
+#assert decrypted_message.reduced_modulo_scalar(3) == message.reduced_modulo_scalar(3)
+
+assert decrypted_message == message
