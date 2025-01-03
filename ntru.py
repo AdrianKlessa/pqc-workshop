@@ -85,3 +85,16 @@ class NTRU:
         m = private_key[1].multiply_mod(a, self.p, self.N_polynomial)
         m = center_polynomial(m, self.p)
         return m
+
+def encode_message(message: int)->Polynomial:
+    binary = str(bin(message))[2:]
+    binary = [int(i) for i in binary]
+    binary = binary[::-1]
+    return Polynomial(binary)
+
+def decode_message(message_polynomial: Polynomial)-> int:
+    coefficients = message_polynomial.coefficients
+    binary = coefficients[::-1].tolist()
+    binary = [str(i) for i in binary]
+    binary = ''.join(binary)
+    return int(binary, 2)
