@@ -59,7 +59,7 @@ class NTRU:
         while True:
             # Repeat until invertible
             # Some discussion about the choice of parameters: https://crypto.stackexchange.com/a/2634
-            # so for ternary(d,d) the chance of it being might be low
+            # so for ternary(d,d) the chance of it being invertible might be low
             f = get_ternary_polynomial(self.d, self.d-1, self.N - 1)
             if f.evaluated_at_1 == 0:
                 continue
