@@ -119,7 +119,7 @@ class Polynomial:
         r = this
         d = other.degree
         c = other.coefficients[-1]
-        if self.degree >= other_polynomial.degree:
+        if this.degree > other.degree:
             deg_var = r.degree
             while deg_var >= d and not r.is_zero:
                 if mod_number:
@@ -135,10 +135,12 @@ class Polynomial:
                 deg_var = r.degree
         else:
             q = Polynomial([0])
-            r = self
+            r = this
         if mod_number:
             q = q.reduced_modulo_scalar(mod_number)
             r = r.reduced_modulo_scalar(mod_number)
+
+        assert other_polynomial.multiply_mod(q, mod_number).add_mod(r, mod_number) == this
         return q, r
 
     def get_inverse(self, mod_polynomial: Polynomial, mod_number: int | None) -> Polynomial:
@@ -149,8 +151,8 @@ class Polynomial:
         :param mod_number: Modulus for coefficients
         :return: Multiplicative inverse of this polynomial
         """
-        this = self
-        other = mod_polynomial
+        this = self.reduced_modulo_scalar(mod_number)
+        other = mod_polynomial.reduced_modulo_scalar(mod_number)
         # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Simple_algebraic_field_extensions
         t = Polynomial([0])
         t_prime = Polynomial([1])
@@ -169,7 +171,7 @@ class Polynomial:
         _, r = r.divide_by(mod_polynomial, mod_number)
         if r.degree > 0:
             raise ValueError("The given polynomial is not invertible")
-        temp_x = multiplicative_inverse(r.coefficients[0], mod_number)
+        temp_x = multiplicative_inverse(int(r.coefficients[0]), mod_number)
         return Polynomial([temp_x]).multiply_mod(t, mod_number)
 
     @property
