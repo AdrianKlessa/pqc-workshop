@@ -72,10 +72,25 @@ def inverse_z_prime_power(a: Polynomial, modulus_prime: int, modulus_power: int,
         left = Polynomial([modulus_prime]).multiply_mod(b,modulus_number, modulus_polynomial)
         right = a.multiply_mod(b_squared,modulus_number, modulus_polynomial)
         b = left.substract_mod(right, modulus_number)
-        n = n+1#modulus_power*n
+        n = n+1 #modulus_power*n
     _, r = ntru_division(b, modulus_polynomial, modulus_power)
     return r
 
+def get_inverse(a: Polynomial, modulus_number: int, modulus_polynomial: Polynomial) -> Union[Polynomial, False]:
+    if check_if_power_of_two(modulus_number):
+        base = 2
+        exponent = get_power_of_two(modulus_number)
+        return inverse_z_prime_power(a, base, exponent, modulus_polynomial)
+    else:
+        return inverse_z_prime(a, modulus_number, modulus_polynomial)
+
+def get_power_of_two(number: int) -> int:
+    # int--> int
+    # - 1 because 2ⁿ requires n+1 bits. Works for very large integers
+    return number.bit_length()-1
+
+def check_if_power_of_two(number: int) -> bool:
+    return (number != 0) and (number & (number - 1) == 0)
 
 #p1 = Polynomial([7, 10, 5, 2])
 #p2 = Polynomial([4, 0, 1])
