@@ -8,6 +8,8 @@
 
 *They are slow, don't use proper sources of entropy and are surely vulnerable to timing and various other attacks*
 
+The implementation of Kyber used here also doesn't utilize the Number Theoretic Transform (NTT)
+
 Useful sources used for implementing Kyber:
 
 * https://cryptopedia.dev/posts/kyber/
