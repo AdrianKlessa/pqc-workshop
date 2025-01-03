@@ -214,6 +214,10 @@ class Polynomial:
 
         return repr_string
 
+    @property
+    def evaluated_at_1(self):
+        return np.sum(self.coefficients)
+
     def __eq__(self, other):
         return np.array_equal(self.coefficients, other.coefficients)
 

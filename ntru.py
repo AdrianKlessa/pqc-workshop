@@ -4,6 +4,7 @@ import numpy as np
 
 import polynomial_helper
 from polynomial_helper import Polynomial
+from ntru_polynomials_wrapper import get_inverse
 
 
 def get_ternary_polynomial(no_positive, no_negative, degree):
@@ -43,50 +44,55 @@ def center_coefficients(coefficients, q):
 
 
 class NTRU:
-    def __init__(self, N:int, p:int, q:int, d: int):
+    def __init__(self, N: int, p: int, q: int, d: int):
         self.N = N
         self.p = p
         self.q = q
         self.d = d
-        self.N_polynomial = polynomial_helper.Polynomial([-1]+[0]*(N-1)+[1])
+        self.N_polynomial = polynomial_helper.Polynomial([-1] + [0] * (N - 1) + [1])
         print(self.N_polynomial)
 
     def generate_keys(self):
         while True:
-            try:
-                # Repeat until invertible
-                print("Aaa")
-                f = get_ternary_polynomial(self.d, self.d, self.N - 1)
-                fp = f.get_inverse(self.N_polynomial, self.p)
-                print("Got fp")
-                fq = f.get_inverse(self.N_polynomial, self.q)
-                break
-            except ValueError:
-                print("retrying...")
+            # Repeat until invertible
+            # Some discussion about the choice of parameters: https://crypto.stackexchange.com/a/2634
+            # so for ternary(d,d) the chance of it being might be low
+            f = get_ternary_polynomial(self.d, self.d-1, self.N - 1)
+            if f.evaluated_at_1 == 0:
                 continue
-        g = get_ternary_polynomial(self.d,self.d,self.N-1)
-        h = Polynomial([self.p]).multiply_mod(fq,self.q,self.N_polynomial)
-        h = h.multiply_mod(g,self.q,self.N_polynomial)
-        return (h,(f, fp))
+            #f = Polynomial([-1, 1, 1, 0, -1, 0, 1, 0, 0, 1, -1])
+            print(f"f: {f}")
+            print(f"N polynomial: {self.N_polynomial}")
+            print(f"q: {self.q}")
+            print(f"p: {self.p}")
+            fp = get_inverse(f, self.p, self.N_polynomial)
+            fq = get_inverse(f, self.q, self.N_polynomial)
+            print(f"fp: {fp}, fq: {fq}")
+            if fp and fq:
+                break
+        g = get_ternary_polynomial(self.d, self.d, self.N - 1)
+        h = Polynomial([self.p]).multiply_mod(fq, self.q, self.N_polynomial)
+        h = h.multiply_mod(g, self.q, self.N_polynomial)
+        return (h, (f, fp))
 
-    def encrypt(self, public_key: Polynomial, message: Polynomial)->Polynomial:
+    def encrypt(self, public_key: Polynomial, message: Polynomial) -> Polynomial:
         r = get_ternary_polynomial(self.d, self.d, self.N - 1)
         c = r.multiply_mod(public_key, self.q, self.N_polynomial)
-        c = c.multiply_mod(Polynomial[self.p], self.q, self.N_polynomial)
+        c = c.multiply_mod(Polynomial([self.p]), self.q, self.N_polynomial)
         c = c.add_mod(message, self.q)
         return c
 
-    def decrypt(self, ciphertext: Polynomial, private_key: Tuple[Polynomial,Polynomial])->Polynomial:
+    def decrypt(self, ciphertext: Polynomial, private_key: Tuple[Polynomial, Polynomial]) -> Polynomial:
         a = ciphertext.multiply_mod(private_key[0], self.q, self.N_polynomial)
         m = private_key[1].multiply_mod(a, self.p, self.N_polynomial)
         return m
 
 
-ntru_system = NTRU(11,3,32, 3)
+ntru_system = NTRU(509, 3, 2048, 3)
 
 public_key, private_key = ntru_system.generate_keys()
 
-message = Polynomial([-1,0,0,1,-1,0,0,0,-1,1,1])
+message = Polynomial([-1, 0, 0, 1, -1, 0, 0, 0, -1, 1, 1])
 print(f"message: {message}")
 
 ciphertext = ntru_system.encrypt(public_key, message)
