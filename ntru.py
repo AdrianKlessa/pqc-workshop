@@ -73,7 +73,9 @@ class NTRU:
         return (h, (f, fp))
 
     def encrypt(self, public_key: Polynomial, message: Polynomial) -> Polynomial:
-        # TODO: Verify that the message is in the correct range (centered)
+        for coeff in message.coefficients:
+            if not -self.p/2 <= coeff <= self.p/2:
+                raise ValueError("Message is not centered properly")
         r = get_ternary_polynomial(self.d, self.d, self.N - 1)
         c = r.multiply_mod(public_key, self.q, self.N_polynomial)
         c = c.add_mod(message, self.q)
