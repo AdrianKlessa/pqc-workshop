@@ -91,7 +91,7 @@ class NTRU:
 def encode_message(message: int)->Polynomial:
     binary = str(bin(message))[2:]
     binary = [int(i) for i in binary]
-    # Inversing the binary strings to prevent truncation of leading coefficients equal to 0
+    # Reversing the binary strings to prevent truncation of leading coefficients equal to 0
     binary = binary[::-1]
     return Polynomial(binary)
 
