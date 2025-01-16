@@ -29,25 +29,13 @@ class Polynomial:
         :return: this*other_polynomial
         """
         # +2 since the degree is w/o the constant term
-        result_coefficients = [0 for _ in
-                               range(self.coefficients.shape[0] + other_polynomial.coefficients.shape[0] + 2)]
-
-        for i in range(other_polynomial.coefficients.shape[0]):
-            for j in range(self.coefficients.shape[0]):
-                result_coefficients[i + j] += (self.coefficients[j] * other_polynomial.coefficients[i])
-                if mod_number:
-                    result_coefficients[i + j] %= mod_number
-
-        if np.any(result_coefficients):
-            last_nonzero_index = np.max(np.nonzero(result_coefficients))
-            result_coefficients = result_coefficients[:last_nonzero_index + 1]
-        else:
-            result_coefficients = np.array([0], dtype=int)
-
-        if mod_polynomial:
-            temp_polynomial = Polynomial(result_coefficients)
-            q, r = temp_polynomial.divide_by(mod_polynomial, mod_number)
-            return r
+        result_coefficients = np.convolve(self.coefficients, other_polynomial.coefficients)
+        if mod_polynomial is not None:
+            _, result = Polynomial(result_coefficients).divide_by(mod_polynomial, mod_number)
+            return result
+        if mod_number is not None:
+            result_coefficients %= mod_number
+            return Polynomial(result_coefficients)
 
         return Polynomial(result_coefficients)
 
@@ -96,9 +84,8 @@ class Polynomial:
         :param scalar: Modulus for coefficients
         :return: Polynomial with reduced coefficients
         """
-        coeffs = np.copy(self.coefficients).tolist()
-        for i in range(len(coeffs)):
-            coeffs[i] %= scalar
+        coeffs = np.copy(self.coefficients)
+        coeffs = coeffs % scalar
         return Polynomial(coeffs)
 
     def divide_by(self, other_polynomial: Polynomial, mod_number: int | None = None) -> tuple[Polynomial, Polynomial]:
