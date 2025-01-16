@@ -46,25 +46,18 @@ class Polynomial:
         :return: this+other_polynomial
         """
         # this + other
-        if self.degree > other_polynomial.degree:
-            coeffs = np.copy(self.coefficients)
-            for i in range(other_polynomial.degree + 1):
-                coeffs[i] = coeffs[i] + other_polynomial.coefficients[i]
+        len_a = len(self.coefficients)
+        len_b = len(other_polynomial.coefficients)
+        if len_a > len_b:
+            result = self.coefficients.copy()
+            result[:len_b] += other_polynomial.coefficients
         else:
-            coeffs = np.copy(other_polynomial.coefficients)
-            for i in range(self.degree + 1):
-                coeffs[i] = coeffs[i] + self.coefficients[i]
-
-        if np.any(coeffs):
-            last_nonzero_index = np.max(np.nonzero(coeffs))
-            coeffs = coeffs[:last_nonzero_index + 1]
-        else:
-            coeffs = np.array([0], dtype=int)
+            result = other_polynomial.coefficients.copy()
+            result[:len_a] += self.coefficients
 
         if mod_number:
-            for i in range(len(coeffs)):
-                coeffs[i] %= mod_number
-        return Polynomial(coeffs)
+            result %= mod_number
+        return Polynomial(result)
 
     def substract_mod(self, other_polynomial: Polynomial, mod_number: int | None = None) -> Polynomial:
         """
