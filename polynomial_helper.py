@@ -28,7 +28,6 @@ class Polynomial:
         :param mod_polynomial: Modulus polynomial for reduction
         :return: this*other_polynomial
         """
-        # +2 since the degree is w/o the constant term
         result_coefficients = np.convolve(self.coefficients, other_polynomial.coefficients)
         if mod_polynomial is not None:
             _, result = Polynomial(result_coefficients).divide_by(mod_polynomial, mod_number)
