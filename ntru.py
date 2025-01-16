@@ -47,7 +47,7 @@ def center_polynomial(polynomial: Polynomial, q: int):
     return Polynomial(center_coefficients(coeffs, q))
 
 class NTRU:
-    def __init__(self, N: int = 251, p: int = 3, q: int = 128, d: int = 3):
+    def __init__(self, N: int = 509, p: int = 3, q: int = 2048, d: int = 11):
         self.N = N
         self.p = p
         self.q = q
