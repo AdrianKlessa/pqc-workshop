@@ -15,10 +15,10 @@ class TestNtru(unittest.TestCase):
         self.assertEqual([-8,4,-8,-5],ntru.center_coefficients(coefficients,q))
 
     def test_encrypt_decrypt(self):
-        N = 251
+        N = 509
         p = 3
-        q = 128
-        d = 3
+        q = 2048
+        d = 11
 
         for i in range(5):
             ntru_system = ntru.NTRU(N, p, q, d)
