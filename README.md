@@ -8,7 +8,9 @@
 
 *They are slow, don't use proper sources of entropy and are surely vulnerable to timing and various other attacks*
 
-The implementation of Kyber used here also doesn't utilize the Number Theoretic Transform (NTT)
+The implementation of Kyber used here also doesn't utilize the Number Theoretic Transform (NTT) so it's both slower and not compliant with the NIST specification of the algorithm.
+
+The Kyber code also doesn't verify that the message's error vectors were generated properly.
 
 Useful sources used for implementing Kyber:
 
